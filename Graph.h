@@ -1,7 +1,7 @@
 #ifndef _GRAPH_H_
 #define _GRAPH_H_
 
-#include "minHeap.h"
+#include "MinHeap.h"
 #include <vector>
 #include <list>
 #include <iostream>
@@ -13,11 +13,9 @@ using namespace std;
 
 class Graph {
     struct Edge {
-
         int dest;
-        double weight;
-        string line;
-        bool isNight;
+        int capacity;
+        int duration;
         bool removed = false;
     };
 
@@ -70,11 +68,10 @@ public:
     ///
     /// \param source source stop
     /// \param destination destination stop
-    /// \param line line code
-    /// \param distance distance of stops in meters
-    /// \param isNight if the line is a night line or day line
+    /// \param capacity capacity of passengers
+    /// \param duration duration in hours
     ///
-    void addEdge(int source, int destination, string line, double distance, bool isNight = false);
+    void addEdge(int source, int destination, int capacity, int duration);
     /// size of the graph
     /// \return
     int size() const {return n;}
@@ -189,6 +186,7 @@ public:
     /// \param lon2 longitude from destination
     /// \return
     double applyHaversine(double lat1, double lon1, double lat2, double lon2);
+
 };
 
 #endif

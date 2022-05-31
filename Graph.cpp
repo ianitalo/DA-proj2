@@ -12,16 +12,17 @@ using namespace std;
 Graph::Graph(int num, bool dir) : n(num), hasDir(dir), nodes(num+1) {
 }
 
-void Graph::addEdge(int source, int destination, string line, double distance, bool isNight) {
+void Graph::addEdge(int source, int destination, int capacity, int duration) {
     if (source < 0 || source > n - 1 || destination < 0 || destination > n - 1){
+        cout << source << destination << endl;
         cout << "Can't add the edge." << endl;
         return;
     }
-    nodes[source].adj.push_back({destination, distance, line, isNight});
-    if (!hasDir) nodes[destination].adj.push_back({source, distance});
+    nodes[source].adj.push_back({destination, capacity, duration});
+    if (!hasDir) nodes[destination].adj.push_back({source, capacity, duration});
 }
 
-
+/*
 pair<double, double> Graph::getCoordinates(int node) {
     return {nodes[node].latitude, nodes[node].longitude};
 }
@@ -409,3 +410,4 @@ void Graph::removeLine(unordered_set <string> stringSet)
         }
     }
 }
+ */
