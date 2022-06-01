@@ -71,7 +71,7 @@ void Graph::dijkstra(int source) {
 
 
 
-double Graph::prim(int source) {
+void Graph::prim(int source) {
     MinHeap<int, double> heap(n, -1);
     for(int i = 0; i < n; i++){
         nodes[i].dist = INF;
@@ -90,6 +90,45 @@ double Graph::prim(int source) {
                 nodes[edge.dest].dist = edge.duration;
                 heap.decreaseKey(edge.dest, edge.duration);
             }
+        }
+    }
+}
+
+struct CompareNodeByCapacity
+{
+    bool operator()(const pair<int,int>& lhs, const pair<int,int>& rhs)
+    {
+        return lhs.second < rhs.second;
+    }
+};
+
+
+void Graph::problema_1_1(int source)
+{
+    //pair de indice,capacidade
+    priority_queue<pair<int,int>,vector<pair<int,int>>, CompareNodeByCapacity > pq;
+    //MinHeap<int, double> queue(n, -1);
+    for (int v=0; v<n; v++) {
+        nodes[v].pred = -1;
+        nodes[v].nodeCapacity = 0;
+        pq.push(make_pair(v,nodes[v].nodeCapacity));
+        queue.insert(v, 0); //priority queue
+    }
+    nodes[source].nodeCapacity = INF;
+    pq.
+    queue.decreaseKey(source, INF);
+    nodes[source].pred = source;
+    while (queue.getSize() > 0) {
+        int smallest = queue.removeMin();
+        for (auto &edge : nodes[smallest].adj) {
+            int capacity = edge.capacity;
+            int destination = edge.dest;
+            if (min(nodes[smallest].nodeCapacity,edge.capacity) > capacity) {
+                nodes[destination].nodeCapacity = min(nodes[smallest].nodeCapacity,edge.capacity);
+                nodes[destination].pred = smallest;
+                queue.decreaseKey(destination, nodes[destination].nodeCapacity);
+            }
+
         }
     }
 }

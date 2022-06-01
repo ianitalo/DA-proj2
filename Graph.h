@@ -11,24 +11,24 @@
 
 using namespace std;
 
+struct Edge {
+    int dest;
+    int capacity;
+    int duration;
+};
+
+struct Node {
+    list<Edge> adj;
+    bool visited;
+    double dist;
+    int pred;
+    int nodeCapacity;
+};
+
 class Graph {
-    struct Edge {
-        int dest;
-        int capacity;
-        int duration;
-    };
-
-    struct Node {
-        list<Edge> adj;
-        bool visited;
-        double dist;
-        int pred;
-    };
-
     int n;              // Graph size (vertices are numbered from 1 to n)
     bool hasDir;        // false: undirect; true: directed
     vector<Node> nodes; // The list of nodes being represented
-
 
 public:
 
@@ -50,7 +50,9 @@ public:
 
     void dijkstra(int source);
 
-    double prim(int source);
+    void prim(int source);
+
+    bool compareCapacity(const Node &lhs, const Node &rhs);
 };
 
 #endif
