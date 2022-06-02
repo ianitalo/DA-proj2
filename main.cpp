@@ -31,13 +31,15 @@ Graph loadGraph(string filename_no){
         getline(f, duration, '\n');
         graph.addEdge(stoi(entry_node),stoi(exit_node), stoi(capacity), stoi(duration));
     }
+    return graph;
 
 };
 
 
 int main() {
 
-    loadGraph("1");
+    Graph graph = loadGraph("1");
+    graph.problema_2_1();
     cout << "Hello, World!" << endl;
     return 0;
 }

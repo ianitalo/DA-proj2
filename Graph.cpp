@@ -41,6 +41,7 @@ void Graph::bfs(int v) {
         }
     }
 }
+
 //ta fazendo o caminho com menor duração no momento
 void Graph::dijkstra(int source) {
     MinHeap<int, double> queue(n, -1);
@@ -103,7 +104,7 @@ struct CompareNodeByCapacity
 };
 
 
-void Graph::problema_1_1(int source)
+/*void Graph::problema_1_1(int source)
 {
     //pair de indice,capacidade
     priority_queue<pair<int,int>,vector<pair<int,int>>, CompareNodeByCapacity > pq;
@@ -131,7 +132,153 @@ void Graph::problema_1_1(int source)
 
         }
     }
+}*/
+
+void Graph::problema_2_1()
+{
+    int source = 1,destination = 7,group_size = 13;
+    Graph rGraph = *this;
+    list<string> paths = fordFulkerson2_1(source,destination,group_size,&rGraph);
+    if(!paths.empty())
+    {
+        cout << "possible path: " << endl;
+        for(string &s: paths)
+        {
+            cout << s << endl;
+        }
+    }
+    else
+    {
+        cout << "no possible path with this number of people!" << endl;
+    }
 }
+
+bool Graph::bfs2(int source,int dest,Graph &rgraph,int parent[]) {
+// initialize all nodes as unvisited
+    for (int i=0; i<n; i++) rgraph.nodes[i].visited = false;
+    queue <int> q; // queue of unvisited nodes
+    q.push(source);
+    parent[source] = -1;
+    rgraph.nodes[source].visited = true ;
+    while (!q.empty ()) { // while there are still unprocessed nodes
+        int u = q.front(); q.pop(); // remove first element of q
+        for (auto &e : rgraph.nodes[u].adj) {
+            int w = e.dest;
+            if (!rgraph.nodes[w].visited && e.capacity > 0) {
+                if (w == dest) {
+                    parent[w] = u;
+                    return true;
+                }
+                // new node!
+                q.push(w);
+                rgraph.nodes[w].visited = true;
+                parent[w] = u;
+            }
+        }
+    }
+    return false;
+}
+
+Edge* Graph::getEdge(Graph& rGraph,int src, int dest)
+{
+    for(auto &a : rGraph.nodes[src].adj)
+    {
+        if(a.dest == dest)
+        {
+            return &a;
+        }
+    }
+    //se o edge n existe, cria-o para a rede residual
+    Edge* edge = new Edge{dest,0,0};
+    rGraph.nodes[src].adj.push_back(*edge);
+    return edge;
+}
+
+list<string> Graph::fordFulkerson2_1(int s, int t,int group_size,Graph* rGraph)
+{
+    int u, v;
+    //residual graph
+
+    int parent[n]; // This array is filled by BFS and to
+    // store path
+    list<string> paths_used;
+
+    // Augment the flow while there is path from source to
+    // sink
+    while (bfs2(s, t,*rGraph, parent)) {
+        // Find minimum residual capacity of the edges along
+        // the path filled by BFS. Or we can say find the
+        // maximum flow through the path found.
+        int path_flow = INT_MAX;
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edge = getEdge(*rGraph,u,v);
+            path_flow = min(path_flow, edge->capacity);
+        }
+
+        // update residual capacities of the edges and
+        // reverse edges along the path
+        string path;
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edgeUV = getEdge(*rGraph,u,v);
+            edgeUV->capacity -= path_flow;
+            Edge* edgeVU = getEdge(*rGraph,v,u);
+            edgeVU->capacity += path_flow;
+            paths_used.push_front("from path " + to_string(u) + " to " + to_string(v) + " with " + to_string(path_flow) +" people");
+        }
+        group_size -= path_flow;
+        cout << "path flow: " << path_flow << endl;
+        if(group_size <= 0)
+        {
+            return paths_used;
+        }
+    }
+    return {};
+}
+
+// Returns the maximum flow from s to t in the given graph
+/*int Graph::fordFulkerson(int s, int t,)
+{
+    int u, v;
+    //residual graph
+    Graph rGraph = *this;
+
+    int parent[n]; // This array is filled by BFS and to
+    // store path
+
+    int max_flow = 0; // There is no flow initially
+
+    // Augment the flow while there is path from source to
+    // sink
+    while (bfs2(s, t,rGraph, parent)) {
+        // Find minimum residual capacity of the edges along
+        // the path filled by BFS. Or we can say find the
+        // maximum flow through the path found.
+        int path_flow = INT_MAX;
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edge = getEdge(rGraph,u,v);
+            path_flow = min(path_flow, edge->capacity);
+        }
+
+        // update residual capacities of the edges and
+        // reverse edges along the path
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edgeUV = getEdge(rGraph,u,v);
+            edgeUV->capacity -= path_flow;
+            Edge* edgeVU = getEdge(rGraph,v,u);
+            edgeVU->capacity += path_flow;
+        }
+
+        // Add path flow to overall flow
+        max_flow += path_flow;
+    }
+
+    // Return the overall flow
+    return max_flow;
+}*/
 /*
 
 void Graph::lessStopsPath()

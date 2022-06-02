@@ -52,7 +52,15 @@ public:
 
     void prim(int source);
 
-    bool compareCapacity(const Node &lhs, const Node &rhs);
+    bool bfs2(int source, int dest, Graph &rgraph, int *parent);
+
+    int fordFulkerson(int s, int t);
+
+    Edge *getEdge(Graph &rGraph, int src, int dest);
+
+    void problema_2_1();
+
+    list<string> fordFulkerson2_1(int s, int t, int group_size, Graph *rGraph);
 };
 
 #endif
