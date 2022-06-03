@@ -42,36 +42,6 @@ void Graph::bfs(int v) {
     }
 }
 
-//ta fazendo o caminho com menor duração no momento
-void Graph::dijkstra(int source) {
-    MinHeap<int, double> queue(n, -1);
-    for (int v=0; v<n; v++) {
-        nodes[v].dist = INF;
-        queue.insert(v, INF); //priority queue
-        nodes[v].visited = false;
-    }
-    nodes[source].dist = 0;
-    queue.decreaseKey(source, 0);
-    nodes[source].pred = source;
-    while (queue.getSize() > 0) {
-        int smallest = queue.removeMin();
-        nodes[smallest].visited = true;
-        for (auto &edge : nodes[smallest].adj) {
-
-                int v = edge.dest;
-                double w = edge.duration;
-                if (!nodes[v].visited && nodes[smallest].dist + w < nodes[v].dist) {
-                    nodes[v].dist = nodes[smallest].dist + w;
-                    queue.decreaseKey(v, nodes[v].dist);
-                    nodes[v].pred = smallest;
-                }
-
-        }
-    }
-}
-
-
-
 void Graph::prim(int source) {
     MinHeap<int, double> heap(n, -1);
     for(int i = 0; i < n; i++){
@@ -136,7 +106,7 @@ struct CompareNodeByCapacity
 
 void Graph::problema_2_1()
 {
-    int source = 1,destination = 7,group_size = 13;
+    int source = 1,destination = 7,group_size = 2;
     Graph rGraph = *this;
     list<string> paths = fordFulkerson2_1(source,destination,group_size,&rGraph);
     if(!paths.empty())
@@ -151,6 +121,38 @@ void Graph::problema_2_1()
     {
         cout << "no possible path with this number of people!" << endl;
     }
+}
+
+//ta fazendo o caminho com menor duração no momento
+bool Graph::dijkstra2(int source,int dest,Graph &rgraph,int parent[]) {
+    MinHeap<int, double> queue(n, -1);
+    for (int v=0; v<n; v++) {
+        rgraph.nodes[v].dist = INF;
+        queue.insert(v, INF); //priority queue
+        rgraph.nodes[v].visited = false;
+    }
+    rgraph.nodes[source].dist = 0;
+    queue.decreaseKey(source, 0);
+    parent[source] = -1;
+    //nodes[source].pred = source;
+    while (queue.getSize() > 0) {
+        int smallest = queue.removeMin();
+        rgraph.nodes[smallest].visited = true;
+        for (auto &edge : rgraph.nodes[smallest].adj) {
+
+            int v = edge.dest;
+            double w = edge.duration;
+            if (!rgraph.nodes[v].visited && rgraph.nodes[smallest].dist + w < rgraph.nodes[v].dist && edge.capacity > 0) {
+                rgraph.nodes[v].dist = rgraph.nodes[smallest].dist + w;
+                queue.decreaseKey(v, nodes[v].dist);
+                //rgraph.nodes[v].pred = smallest;
+                parent[v] = smallest;
+                if(v == dest) return true;
+            }
+
+        }
+    }
+    return false;
 }
 
 bool Graph::bfs2(int source,int dest,Graph &rgraph,int parent[]) {
@@ -205,7 +207,7 @@ list<string> Graph::fordFulkerson2_1(int s, int t,int group_size,Graph* rGraph)
 
     // Augment the flow while there is path from source to
     // sink
-    while (bfs2(s, t,*rGraph, parent)) {
+    while (dijkstra2(s, t,*rGraph, parent)) {
         // Find minimum residual capacity of the edges along
         // the path filled by BFS. Or we can say find the
         // maximum flow through the path found.
@@ -215,10 +217,9 @@ list<string> Graph::fordFulkerson2_1(int s, int t,int group_size,Graph* rGraph)
             Edge* edge = getEdge(*rGraph,u,v);
             path_flow = min(path_flow, edge->capacity);
         }
-
+        if(path_flow > group_size) path_flow = group_size;
         // update residual capacities of the edges and
         // reverse edges along the path
-        string path;
         for (v = t; v != s; v = parent[v]) {
             u = parent[v];
             Edge* edgeUV = getEdge(*rGraph,u,v);
@@ -235,6 +236,138 @@ list<string> Graph::fordFulkerson2_1(int s, int t,int group_size,Graph* rGraph)
         }
     }
     return {};
+}
+
+void Graph::problema_2_2()
+{
+    int source = 1,destination = 7,group_size = 6,group_increment = 3;
+    Graph rGraph = *this;
+    list<string> paths = fordFulkerson2_2(source,destination,group_size,&rGraph,group_increment);
+    if(!paths.empty())
+    {
+        cout << "possible path: " << endl;
+        for(string &s: paths)
+        {
+            cout << s << endl;
+        }
+    }
+    else
+    {
+        cout << "no possible path with this number of people!" << endl;
+    }
+}
+
+list<string> Graph::fordFulkerson2_2(int s, int t,int group_size,Graph* rGraph,int group_increment)
+{
+    int u, v;
+    //residual graph
+    int total_group_path = group_size + group_increment;
+
+    int parent[n]; // This array is filled by BFS and to
+    // store path
+    list<string> paths_used;
+
+    // Augment the flow while there is path from source to
+    // sink
+    while (dijkstra2(s, t,*rGraph, parent)) {
+        // Find minimum residual capacity of the edges along
+        // the path filled by BFS. Or we can say find the
+        // maximum flow through the path found.
+        int path_flow = INT_MAX;
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edge = getEdge(*rGraph,u,v);
+            path_flow = min(path_flow, edge->capacity);
+        }
+        if(path_flow > total_group_path) path_flow = total_group_path;
+
+        // update residual capacities of the edges and
+        // reverse edges along the path
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edgeUV = getEdge(*rGraph,u,v);
+            edgeUV->capacity -= path_flow;
+            Edge* edgeVU = getEdge(*rGraph,v,u);
+            edgeVU->capacity += path_flow;
+            paths_used.push_front("from path " + to_string(u) + " to " + to_string(v) + " with " + to_string(path_flow) +" people");
+        }
+        total_group_path -= path_flow;
+        cout << "path flow: " << path_flow << endl;
+        if(total_group_path <= 0)
+        {
+            return paths_used;
+        }
+    }
+
+    if( group_increment >= total_group_path )
+    {
+        cout << "its only possible to increment " <<  group_increment - total_group_path << " to this trip" << endl;
+        return paths_used;
+    }
+    return {};
+}
+
+void Graph::problema_2_3()
+{
+    int source = 1,destination = 7;
+    Graph rGraph = *this;
+    list<string> paths;
+    int max_size = fordFulkerson2_3(source,destination,&rGraph,&paths);
+    if(!paths.empty())
+    {
+        cout << "the max dimension of the group is " << max_size << endl;
+        cout << "possible path: " << endl;
+        for(string &s: paths)
+        {
+            cout << s << endl;
+        }
+    }
+    else
+    {
+        cout << "no possible path!" << endl;
+    }
+}
+
+int Graph::fordFulkerson2_3(int s, int t,Graph* rGraph,list<string>* paths_used)
+{
+    int u, v;
+    //residual graph
+
+    int parent[n]; // This array is filled by BFS and to
+    // store path
+
+    int max_flow = 0; // There is no flow initially
+
+    // Augment the flow while there is path from source to
+    // sink
+    while (dijkstra2(s, t,*rGraph, parent)) {
+        // Find minimum residual capacity of the edges along
+        // the path filled by BFS. Or we can say find the
+        // maximum flow through the path found.
+        int path_flow = INT_MAX;
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edge = getEdge(*rGraph,u,v);
+            path_flow = min(path_flow, edge->capacity);
+        }
+
+        // update residual capacities of the edges and
+        // reverse edges along the path
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edgeUV = getEdge(*rGraph,u,v);
+            edgeUV->capacity -= path_flow;
+            Edge* edgeVU = getEdge(*rGraph,v,u);
+            edgeVU->capacity += path_flow;
+            paths_used->push_front("from path " + to_string(u) + " to " + to_string(v) + " with " + to_string(path_flow) +" people");
+        }
+
+        // Add path flow to overall flow
+        max_flow += path_flow;
+    }
+
+    // Return the overall flow
+    return max_flow;
 }
 
 // Returns the maximum flow from s to t in the given graph

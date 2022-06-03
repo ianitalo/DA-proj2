@@ -61,6 +61,16 @@ public:
     void problema_2_1();
 
     list<string> fordFulkerson2_1(int s, int t, int group_size, Graph *rGraph);
+
+    void problema_2_2();
+
+    list<string> fordFulkerson2_2(int s, int t, int group_size, Graph *rGraph, int group_increment);
+
+    void problema_2_3();
+
+    int fordFulkerson2_3(int s, int t, Graph *rGraph, list<string> *paths_used);
+
+    bool dijkstra2(int source, int dest, Graph &rgraph, int *parent);
 };
 
 #endif

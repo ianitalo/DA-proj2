@@ -40,6 +40,9 @@ int main() {
 
     Graph graph = loadGraph("1");
     graph.problema_2_1();
-    cout << "Hello, World!" << endl;
+    cout << "------------------" << endl;
+    graph.problema_2_2();
+    cout << "------------------" << endl;
+    graph.problema_2_3();
     return 0;
 }
