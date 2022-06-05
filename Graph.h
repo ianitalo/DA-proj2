@@ -10,11 +10,20 @@
 #include <unordered_set>
 
 using namespace std;
+struct FlowInfo{
+    int from;
+    int to;
+    int flow;
+    int distance_from;
+    int distance_to;
+} ;
 
 struct Edge {
     int dest;
     int capacity;
     int duration;
+    int departure = 0;
+    int totalPeople = 0;
 };
 
 struct Node {
@@ -71,6 +80,14 @@ public:
     int fordFulkerson2_3(int s, int t, Graph *rGraph, list<string> *paths_used);
 
     bool dijkstra2(int source, int dest, Graph &rgraph, int *parent);
+
+    void problema_2_5();
+
+    list<struct FlowInfo> fordFulkerson2_5(int s, int t, int group_size, Graph *rGraph);
+
+    void problema_2_4();
+
+    int fordFulkerson2_4(int s, int t, int group_size, Graph *rGraph, list<string> *paths_used);
 };
 
 #endif

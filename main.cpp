@@ -38,11 +38,15 @@ Graph loadGraph(string filename_no){
 
 int main() {
 
-    Graph graph = loadGraph("1");
+    Graph graph = loadGraph("5");
     graph.problema_2_1();
     cout << "------------------" << endl;
     graph.problema_2_2();
     cout << "------------------" << endl;
     graph.problema_2_3();
+    cout << "------------------" << endl;
+    graph.problema_2_4();
+    cout << "------------------" << endl;
+    graph.problema_2_5();
     return 0;
 }

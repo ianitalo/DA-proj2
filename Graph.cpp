@@ -139,10 +139,11 @@ bool Graph::dijkstra2(int source,int dest,Graph &rgraph,int parent[]) {
         int smallest = queue.removeMin();
         rgraph.nodes[smallest].visited = true;
         for (auto &edge : rgraph.nodes[smallest].adj) {
-
             int v = edge.dest;
             double w = edge.duration;
-            if (!rgraph.nodes[v].visited && rgraph.nodes[smallest].dist + w < rgraph.nodes[v].dist && edge.capacity > 0) {
+            if(rgraph.nodes[parent[smallest]].dist  < edge.departure) edge.departure = (int)rgraph.nodes[parent[smallest]].dist;
+            if(edge.departure < rgraph.nodes[smallest].dist) edge.departure = (int)rgraph.nodes[smallest].dist;
+            if (!rgraph.nodes[v].visited && rgraph.nodes[smallest].dist + w < rgraph.nodes[v].dist && edge.capacity > 0 && edge.departure +edge.duration <= rgraph.nodes[v].dist) {
                 rgraph.nodes[v].dist = rgraph.nodes[smallest].dist + w;
                 queue.decreaseKey(v, nodes[v].dist);
                 //rgraph.nodes[v].pred = smallest;
@@ -368,6 +369,165 @@ int Graph::fordFulkerson2_3(int s, int t,Graph* rGraph,list<string>* paths_used)
 
     // Return the overall flow
     return max_flow;
+}
+
+void Graph::problema_2_4()
+{
+    int source = 1,destination = 7,group_size = 13;
+    Graph rGraph = *this;
+    list<string> paths;
+    int time = fordFulkerson2_4(source,destination,group_size,&rGraph,&paths);
+    if(!paths.empty())
+    {
+        cout << "possible path: " << endl;
+        for(string &s: paths)
+        {
+
+        }
+        cout << "all group will be on destination in " << time << " minutes" << endl;
+    }
+    else
+    {
+        cout << "no possible path with this number of people!" << endl;
+    }
+}
+
+int Graph::fordFulkerson2_4(int s, int t,int group_size,Graph* rGraph,list<string>* paths_used)
+{
+    int u, v;
+    //residual graph
+
+    int parent[n]; // This array is filled by BFS and to
+    // store path
+
+    int max_time = 0;
+
+    // Augment the flow while there is path from source to
+    // sink
+    while (dijkstra2(s, t,*rGraph, parent)) {
+        // Find minimum residual capacity of the edges along
+        // the path filled by BFS. Or we can say find the
+        // maximum flow through the path found.
+        max_time = max_time > rGraph->nodes[t].dist ? max_time : (int)rGraph->nodes[t].dist;
+        int path_flow = INT_MAX;
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edge = getEdge(*rGraph,u,v);
+            path_flow = min(path_flow, edge->capacity);
+        }
+        if(path_flow > group_size) path_flow = group_size;
+        // update residual capacities of the edges and
+        // reverse edges along the path
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edgeUV = getEdge(*rGraph,u,v);
+            edgeUV->capacity -= path_flow;
+            Edge* edgeVU = getEdge(*rGraph,v,u);
+            edgeVU->capacity += path_flow;
+            paths_used->push_front("from path " + to_string(u) + " to " + to_string(v) + " with " + to_string(path_flow) +" people");
+        }
+        group_size -= path_flow;
+        cout << "path flow: " << path_flow << endl;
+        if(group_size <= 0)
+        {
+            return max_time;
+        }
+
+    }
+
+    return -1;
+}
+
+void Graph::problema_2_5()
+{
+    int source = 1,destination = 7,group_size = 13;
+    Graph rGraph = *this;
+    Edge oldEdge;
+    list<FlowInfo> paths = fordFulkerson2_5(source,destination,group_size,&rGraph);
+    if(!paths.empty())
+    {
+        cout << "possible path: " << endl;
+        for(FlowInfo &s: paths)
+        {
+            int waitTime;
+            Edge* edge = getEdge(rGraph,s.from,s.to);
+            if(s.from == source)
+            {
+                waitTime = 0;
+            }
+            else
+            {
+                waitTime = edge->departure - (oldEdge.departure + oldEdge.duration);
+            }
+            if(!waitTime)
+                cout << "from path " + to_string(s.from) + " to " + to_string(s.to) + " with " + to_string(s.flow) +" people at " +
+                       to_string(s.distance_from) << " total distance " << " and traveling for " << edge->duration << " minutes " << endl;
+            else if(waitTime > 0) {
+                cout << "after waiting for " << waitTime << " minutes at " << s.from << ", go to " << s.to << " with "
+                     << edge->totalPeople << " people at " << edge->departure << " minutes and traveling for "
+                     << edge->duration << endl;
+            }
+            else
+            {
+                cout << "----------------------" << endl;
+                cout << "from path " << s.from << ", go to " << s.to << " and wait for " << -waitTime << " minutes there " <<" with "
+                     << edge->totalPeople << " people at " << edge->departure << " minutes and traveling for "
+                     << edge->duration << endl;
+            }
+            oldEdge = *edge;
+        }
+        Edge* edge = getEdge(rGraph,paths.back().from,paths.back().to);
+        cout << "and end at " << paths.back().to << " at minute " << edge->departure + edge->duration << endl;
+    }
+    else
+    {
+        cout << "no possible path with this number of people!" << endl;
+    }
+}
+
+
+list<FlowInfo> Graph::fordFulkerson2_5(int s, int t, int group_size, Graph* rGraph)
+{
+    int u, v;
+    //residual graph
+
+    int parent[n]; // This array is filled by BFS and to
+    // store path
+    list<FlowInfo> paths_used;
+
+    // Augment the flow while there is path from source to
+    // sink
+    while (dijkstra2(s, t,*rGraph, parent)) {
+        // Find minimum residual capacity of the edges along
+        // the path filled by BFS. Or we can say find the
+        // maximum flow through the path found.
+        int path_flow = INT_MAX;
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edge = getEdge(*rGraph,u,v);
+            path_flow = min(path_flow, edge->capacity);
+        }
+        if(path_flow > group_size) path_flow = group_size;
+        // update residual capacities of the edges and
+        // reverse edges along the path
+        for (v = t; v != s; v = parent[v]) {
+            u = parent[v];
+            Edge* edgeUV = getEdge(*rGraph,u,v);
+            string path;
+            edgeUV->capacity -= path_flow;
+            edgeUV->totalPeople += path_flow;
+            Edge* edgeVU = getEdge(*rGraph,v,u);
+            edgeVU->capacity += path_flow;
+            paths_used.push_front({u,v,path_flow,(int)rGraph->nodes[u].dist,(int)rGraph->nodes[v].dist});
+        }
+        group_size -= path_flow;
+        cout << "path flow: " << path_flow << endl;
+        if(group_size <= 0)
+        {
+            return paths_used;
+        }
+    }
+    return {};
 }
 
 // Returns the maximum flow from s to t in the given graph
