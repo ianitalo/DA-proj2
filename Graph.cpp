@@ -141,7 +141,6 @@ bool Graph::dijkstra2(int source,int dest,Graph &rgraph,int parent[]) {
         for (auto &edge : rgraph.nodes[smallest].adj) {
             int v = edge.dest;
             double w = edge.duration;
-            if(rgraph.nodes[parent[smallest]].dist  < edge.departure) edge.departure = (int)rgraph.nodes[parent[smallest]].dist;
             if(edge.departure < rgraph.nodes[smallest].dist) edge.departure = (int)rgraph.nodes[smallest].dist;
             if (!rgraph.nodes[v].visited && rgraph.nodes[smallest].dist + w < rgraph.nodes[v].dist && edge.capacity > 0 && edge.departure +edge.duration <= rgraph.nodes[v].dist) {
                 rgraph.nodes[v].dist = rgraph.nodes[smallest].dist + w;
@@ -410,11 +409,19 @@ int Graph::fordFulkerson2_4(int s, int t,int group_size,Graph* rGraph,list<strin
         // maximum flow through the path found.
         max_time = max_time > rGraph->nodes[t].dist ? max_time : (int)rGraph->nodes[t].dist;
         int path_flow = INT_MAX;
+        int lostTime = 0;
+        int totalLost = 0;
+        Edge oldEdge({0,0,0,0});
         for (v = t; v != s; v = parent[v]) {
             u = parent[v];
             Edge* edge = getEdge(*rGraph,u,v);
+            lostTime = edge->departure - (oldEdge.departure + oldEdge.duration);
+            if(lostTime < 0){edge->departure -= lostTime;}
+            if(-lostTime > totalLost) totalLost = -lostTime;
             path_flow = min(path_flow, edge->capacity);
+            oldEdge = *edge;
         }
+        if(totalLost + rGraph->nodes[t].dist > max_time) max_time = totalLost + rGraph->nodes[t].dist;
         if(path_flow > group_size) path_flow = group_size;
         // update residual capacities of the edges and
         // reverse edges along the path
@@ -462,15 +469,9 @@ void Graph::problema_2_5()
             if(!waitTime)
                 cout << "from path " + to_string(s.from) + " to " + to_string(s.to) + " with " + to_string(s.flow) +" people at " +
                        to_string(s.distance_from) << " total distance " << " and traveling for " << edge->duration << " minutes " << endl;
-            else if(waitTime > 0) {
+            else  {
+                if(waitTime < 0){edge->departure -= waitTime; waitTime -= waitTime;}
                 cout << "after waiting for " << waitTime << " minutes at " << s.from << ", go to " << s.to << " with "
-                     << edge->totalPeople << " people at " << edge->departure << " minutes and traveling for "
-                     << edge->duration << endl;
-            }
-            else
-            {
-                cout << "----------------------" << endl;
-                cout << "from path " << s.from << ", go to " << s.to << " and wait for " << -waitTime << " minutes there " <<" with "
                      << edge->totalPeople << " people at " << edge->departure << " minutes and traveling for "
                      << edge->duration << endl;
             }
