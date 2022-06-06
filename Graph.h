@@ -38,6 +38,7 @@ class Graph {
     int n;              // Graph size (vertices are numbered from 1 to n)
     bool hasDir;        // false: undirect; true: directed
     vector<Node> nodes; // The list of nodes being represented
+    int initial_node,final_node,total_group_size,total_group_increment;
 
 public:
 
@@ -88,6 +89,8 @@ public:
     void problema_2_4();
 
     int fordFulkerson2_4(int s, int t, int group_size, Graph *rGraph, list<string> *paths_used);
+
+    void getInfo(int &source, int &destination);
 };
 
 #endif

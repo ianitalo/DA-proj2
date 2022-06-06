@@ -9,7 +9,15 @@ using namespace std;
 
 #define INF (INT_MAX/2)
 
-Graph::Graph(int num, bool dir) : n(num), hasDir(dir), nodes(num+1) {
+Graph::Graph(int num, bool dir) {
+    n = num;
+    hasDir = dir;
+    nodes = vector<Node>(num+1);
+    getInfo(initial_node,final_node);
+    cout << "what is the group size? " << endl; cin >> total_group_size; cout << endl;
+    if(!cin.good())exit(1);
+    cout << "what is the possible group increment? " << endl; cin >> total_group_increment; cout << endl;
+    if(!cin.good())exit(1);
 }
 
 void Graph::addEdge(int source, int destination, int capacity, int duration) {
@@ -20,6 +28,19 @@ void Graph::addEdge(int source, int destination, int capacity, int duration) {
     }
     nodes[source].adj.push_back({destination, capacity, duration});
     if (!hasDir) nodes[destination].adj.push_back({source, capacity, duration});
+}
+
+void Graph::getInfo(int& source,int& destination)
+{
+    cout << "from what stop is the group leaving? " << endl; cin >> source; cout << endl;
+    if(!cin.good()) exit(1);
+    cout << "to what stop is the group arriving? " << endl; cin >> destination; cout << endl;
+    if(!cin.good()) exit(1);
+    if(source > n - 1 || destination < 0)
+    {
+        cerr << "non-existing stop choice!" << endl;
+        exit(1);
+    }
 }
 
 void Graph::bfs(int v) {
@@ -106,9 +127,8 @@ struct CompareNodeByCapacity
 
 void Graph::problema_2_1()
 {
-    int source = 1,destination = 7,group_size = 2;
     Graph rGraph = *this;
-    list<string> paths = fordFulkerson2_1(source,destination,group_size,&rGraph);
+    list<string> paths = fordFulkerson2_1(initial_node,final_node,total_group_size,&rGraph);
     if(!paths.empty())
     {
         cout << "possible path: " << endl;
@@ -141,8 +161,8 @@ bool Graph::dijkstra2(int source,int dest,Graph &rgraph,int parent[]) {
         for (auto &edge : rgraph.nodes[smallest].adj) {
             int v = edge.dest;
             double w = edge.duration;
-            if(edge.departure < rgraph.nodes[smallest].dist) edge.departure = (int)rgraph.nodes[smallest].dist;
-            if (!rgraph.nodes[v].visited && rgraph.nodes[smallest].dist + w < rgraph.nodes[v].dist && edge.capacity > 0 && edge.departure +edge.duration <= rgraph.nodes[v].dist) {
+            edge.departure = (int)rgraph.nodes[smallest].dist;
+            if (!rgraph.nodes[v].visited && rgraph.nodes[smallest].dist + w < rgraph.nodes[v].dist && edge.capacity > 0) {
                 rgraph.nodes[v].dist = rgraph.nodes[smallest].dist + w;
                 queue.decreaseKey(v, nodes[v].dist);
                 //rgraph.nodes[v].pred = smallest;
@@ -240,9 +260,8 @@ list<string> Graph::fordFulkerson2_1(int s, int t,int group_size,Graph* rGraph)
 
 void Graph::problema_2_2()
 {
-    int source = 1,destination = 7,group_size = 6,group_increment = 3;
     Graph rGraph = *this;
-    list<string> paths = fordFulkerson2_2(source,destination,group_size,&rGraph,group_increment);
+    list<string> paths = fordFulkerson2_2(initial_node,final_node,total_group_size,&rGraph,total_group_increment);
     if(!paths.empty())
     {
         cout << "possible path: " << endl;
@@ -309,10 +328,9 @@ list<string> Graph::fordFulkerson2_2(int s, int t,int group_size,Graph* rGraph,i
 
 void Graph::problema_2_3()
 {
-    int source = 1,destination = 7;
     Graph rGraph = *this;
     list<string> paths;
-    int max_size = fordFulkerson2_3(source,destination,&rGraph,&paths);
+    int max_size = fordFulkerson2_3(initial_node,final_node,&rGraph,&paths);
     if(!paths.empty())
     {
         cout << "the max dimension of the group is " << max_size << endl;
@@ -372,10 +390,9 @@ int Graph::fordFulkerson2_3(int s, int t,Graph* rGraph,list<string>* paths_used)
 
 void Graph::problema_2_4()
 {
-    int source = 1,destination = 7,group_size = 13;
     Graph rGraph = *this;
     list<string> paths;
-    int time = fordFulkerson2_4(source,destination,group_size,&rGraph,&paths);
+    int time = fordFulkerson2_4(initial_node,final_node,total_group_size,&rGraph,&paths);
     if(!paths.empty())
     {
         cout << "possible path: " << endl;
@@ -407,21 +424,14 @@ int Graph::fordFulkerson2_4(int s, int t,int group_size,Graph* rGraph,list<strin
         // Find minimum residual capacity of the edges along
         // the path filled by BFS. Or we can say find the
         // maximum flow through the path found.
-        max_time = max_time > rGraph->nodes[t].dist ? max_time : (int)rGraph->nodes[t].dist;
+        // max_time = max_time > rGraph->nodes[t].dist ? max_time : (int)rGraph->nodes[t].dist;
         int path_flow = INT_MAX;
-        int lostTime = 0;
-        int totalLost = 0;
-        Edge oldEdge({0,0,0,0});
         for (v = t; v != s; v = parent[v]) {
             u = parent[v];
             Edge* edge = getEdge(*rGraph,u,v);
-            lostTime = edge->departure - (oldEdge.departure + oldEdge.duration);
-            if(lostTime < 0){edge->departure -= lostTime;}
-            if(-lostTime > totalLost) totalLost = -lostTime;
             path_flow = min(path_flow, edge->capacity);
-            oldEdge = *edge;
         }
-        if(totalLost + rGraph->nodes[t].dist > max_time) max_time = totalLost + rGraph->nodes[t].dist;
+
         if(path_flow > group_size) path_flow = group_size;
         // update residual capacities of the edges and
         // reverse edges along the path
@@ -437,7 +447,7 @@ int Graph::fordFulkerson2_4(int s, int t,int group_size,Graph* rGraph,list<strin
         cout << "path flow: " << path_flow << endl;
         if(group_size <= 0)
         {
-            return max_time;
+            return (int)rGraph->nodes[t].dist;
         }
 
     }
@@ -447,10 +457,9 @@ int Graph::fordFulkerson2_4(int s, int t,int group_size,Graph* rGraph,list<strin
 
 void Graph::problema_2_5()
 {
-    int source = 1,destination = 7,group_size = 13;
     Graph rGraph = *this;
     Edge oldEdge;
-    list<FlowInfo> paths = fordFulkerson2_5(source,destination,group_size,&rGraph);
+    list<FlowInfo> paths = fordFulkerson2_5(initial_node,final_node,total_group_size,&rGraph);
     if(!paths.empty())
     {
         cout << "possible path: " << endl;
@@ -458,7 +467,7 @@ void Graph::problema_2_5()
         {
             int waitTime;
             Edge* edge = getEdge(rGraph,s.from,s.to);
-            if(s.from == source)
+            if(s.from == initial_node)
             {
                 waitTime = 0;
             }
@@ -466,19 +475,17 @@ void Graph::problema_2_5()
             {
                 waitTime = edge->departure - (oldEdge.departure + oldEdge.duration);
             }
-            if(!waitTime)
+            if(waitTime <= 0)
                 cout << "from path " + to_string(s.from) + " to " + to_string(s.to) + " with " + to_string(s.flow) +" people at " +
                        to_string(s.distance_from) << " total distance " << " and traveling for " << edge->duration << " minutes " << endl;
             else  {
-                if(waitTime < 0){edge->departure -= waitTime; waitTime -= waitTime;}
                 cout << "after waiting for " << waitTime << " minutes at " << s.from << ", go to " << s.to << " with "
                      << edge->totalPeople << " people at " << edge->departure << " minutes and traveling for "
                      << edge->duration << endl;
             }
             oldEdge = *edge;
         }
-        Edge* edge = getEdge(rGraph,paths.back().from,paths.back().to);
-        cout << "and end at " << paths.back().to << " at minute " << edge->departure + edge->duration << endl;
+        cout << "and end at " << final_node << " at minute " << rGraph.nodes[final_node].dist << endl;
     }
     else
     {
