@@ -70,6 +70,8 @@ public:
 
     void problema_1_1();
 
+    void problema_1_2();
+
     void problema_2_1();
 
     list<string> fordFulkerson2_1(int s, int t, int group_size, Graph *rGraph);
@@ -95,6 +97,10 @@ public:
     void getInfo(int &source, int &destination);
 
     void dijkstra1(int source, Graph &rgraph, int *parent);
+
+    void dijkstra1_2(int source, Graph &rgraph, int *parent);
+
+    void dijkstra1_2(int source, Graph &rgraph, int *parent, int maxCapacity);
 };
 
 #endif

@@ -147,7 +147,7 @@ public:
         int i = pos[key];
         if (value < A[i].value) return; // value would increase, do nothing
         A[i].value = value;
-        heapify_down(i);
+        heapify_up(i);
     }
 
 
