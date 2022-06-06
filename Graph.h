@@ -68,6 +68,8 @@ public:
 
     Edge *getEdge(Graph &rGraph, int src, int dest);
 
+    void problema_1_1();
+
     void problema_2_1();
 
     list<string> fordFulkerson2_1(int s, int t, int group_size, Graph *rGraph);
@@ -91,6 +93,8 @@ public:
     int fordFulkerson2_4(int s, int t, int group_size, Graph *rGraph, list<string> *paths_used);
 
     void getInfo(int &source, int &destination);
+
+    void dijkstra1(int source, Graph &rgraph, int *parent);
 };
 
 #endif

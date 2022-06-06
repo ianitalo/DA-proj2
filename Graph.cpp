@@ -2,6 +2,7 @@
 #include <climits>
 #include <string>
 #include <cmath>
+#include "maxHeap.h"
 #include <queue>
 
 #include <unordered_set>
@@ -86,44 +87,46 @@ void Graph::prim(int source) {
     }
 }
 
-struct CompareNodeByCapacity
-{
-    bool operator()(const pair<int,int>& lhs, const pair<int,int>& rhs)
-    {
-        return lhs.second < rhs.second;
+void Graph::dijkstra1(int source,Graph &rgraph,int parent[]) {
+    PriorityQueue queue;
+    for (int v=1; v<=n; v++) {
+        rgraph.nodes[v].visited = false;
+        rgraph.nodes[v].nodeCapacity = 0;
+        queue.push(v, 0); //priority queue
     }
-};
-
-
-/*void Graph::problema_1_1(int source)
-{
-    //pair de indice,capacidade
-    priority_queue<pair<int,int>,vector<pair<int,int>>, CompareNodeByCapacity > pq;
-    //MinHeap<int, double> queue(n, -1);
-    for (int v=0; v<n; v++) {
-        nodes[v].pred = -1;
-        nodes[v].nodeCapacity = 0;
-        pq.push(make_pair(v,nodes[v].nodeCapacity));
-        queue.insert(v, 0); //priority queue
-    }
-    nodes[source].nodeCapacity = INF;
-    pq.
-    queue.decreaseKey(source, INF);
-    nodes[source].pred = source;
-    while (queue.getSize() > 0) {
-        int smallest = queue.removeMin();
-        for (auto &edge : nodes[smallest].adj) {
-            int capacity = edge.capacity;
-            int destination = edge.dest;
-            if (min(nodes[smallest].nodeCapacity,edge.capacity) > capacity) {
-                nodes[destination].nodeCapacity = min(nodes[smallest].nodeCapacity,edge.capacity);
-                nodes[destination].pred = smallest;
-                queue.decreaseKey(destination, nodes[destination].nodeCapacity);
+    rgraph.nodes[source].nodeCapacity = INF;
+    queue.increaseKey(source, INF);
+    parent[source] = -1;
+    //nodes[source].pred = source;
+    while (!queue.empty()) {
+        int smallest = queue.top(); queue.pop();
+        rgraph.nodes[smallest].visited = true;
+        for (auto &edge : rgraph.nodes[smallest].adj) {
+            int v = edge.dest;
+            int w = edge.capacity;
+            if (!rgraph.nodes[v].visited && min(rgraph.nodes[smallest].nodeCapacity,w) > rgraph.nodes[v].nodeCapacity) {
+                rgraph.nodes[v].nodeCapacity = min(rgraph.nodes[smallest].nodeCapacity,w);
+                queue.increaseKey(v, nodes[v].nodeCapacity);
+                //rgraph.nodes[v].pred = smallest;
+                parent[v] = smallest;
             }
 
         }
     }
-}*/
+}
+
+
+void Graph::problema_1_1()
+{
+    Graph rGraph = *this;
+    int parent[n];
+    dijkstra1(initial_node,rGraph,parent);
+    cout << "path:" << endl;
+    for (int v = final_node; v != initial_node; v = parent[v]) {
+        cout << v << endl;
+    }
+    cout << "with " << rGraph.nodes[final_node].nodeCapacity << " people" << endl;
+}
 
 void Graph::problema_2_1()
 {

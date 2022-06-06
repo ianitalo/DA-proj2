@@ -39,6 +39,8 @@ Graph loadGraph(string filename_no){
 int main() {
 
     Graph graph = loadGraph("1");
+    graph.problema_1_1();
+    cout << "------------------" << endl;
     graph.problema_2_1();
     cout << "------------------" << endl;
     graph.problema_2_2();
