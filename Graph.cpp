@@ -301,9 +301,9 @@ Edge* Graph::getEdge(Graph& rGraph,int src, int dest)
 list<string> Graph::fordFulkerson2_1(int s, int t,int group_size,Graph* rGraph)
 {
     int u, v;
-    //residual graph
 
-    int parent[n]; // This array is filled by BFS and to
+
+    int parent[n]; // This array is filled by dijkstra2 and to
     // store path
     list<string> paths_used;
 
@@ -311,7 +311,7 @@ list<string> Graph::fordFulkerson2_1(int s, int t,int group_size,Graph* rGraph)
     // sink
     while (dijkstra2(s, t,*rGraph, parent)) {
         // Find minimum residual capacity of the edges along
-        // the path filled by BFS. Or we can say find the
+        // the path filled by dijkstra2. Or we can say find the
         // maximum flow through the path found.
         int path_flow = INT_MAX;
         for (v = t; v != s; v = parent[v]) {
@@ -361,10 +361,10 @@ void Graph::problema_2_2()
 list<string> Graph::fordFulkerson2_2(int s, int t,int group_size,Graph* rGraph,int group_increment)
 {
     int u, v;
-    //residual graph
+
     int total_group_path = group_size + group_increment;
 
-    int parent[n]; // This array is filled by BFS and to
+    int parent[n]; // This array is filled by dijkstra2 and to
     // store path
     list<string> paths_used;
 
@@ -372,7 +372,7 @@ list<string> Graph::fordFulkerson2_2(int s, int t,int group_size,Graph* rGraph,i
     // sink
     while (dijkstra2(s, t,*rGraph, parent)) {
         // Find minimum residual capacity of the edges along
-        // the path filled by BFS. Or we can say find the
+        // the path filled by dijkstra2. Or we can say find the
         // maximum flow through the path found.
         int path_flow = INT_MAX;
         for (v = t; v != s; v = parent[v]) {
@@ -431,9 +431,9 @@ void Graph::problema_2_3()
 int Graph::fordFulkerson2_3(int s, int t,Graph* rGraph,list<string>* paths_used)
 {
     int u, v;
-    //residual graph
 
-    int parent[n]; // This array is filled by BFS and to
+
+    int parent[n]; // This array is filled by dijkstra2 and to
     // store path
 
     int max_flow = 0; // There is no flow initially
@@ -442,7 +442,7 @@ int Graph::fordFulkerson2_3(int s, int t,Graph* rGraph,list<string>* paths_used)
     // sink
     while (dijkstra2(s, t,*rGraph, parent)) {
         // Find minimum residual capacity of the edges along
-        // the path filled by BFS. Or we can say find the
+        // the path filled by dijkstra2. Or we can say find the
         // maximum flow through the path found.
         int path_flow = INT_MAX;
         for (v = t; v != s; v = parent[v]) {
@@ -493,9 +493,9 @@ void Graph::problema_2_4()
 int Graph::fordFulkerson2_4(int s, int t,int group_size,Graph* rGraph,list<string>* paths_used)
 {
     int u, v;
-    //residual graph
 
-    int parent[n]; // This array is filled by BFS and to
+
+    int parent[n]; // This array is filled by dijkstra2 and to
     // store path
 
     int max_time = 0;
@@ -504,7 +504,7 @@ int Graph::fordFulkerson2_4(int s, int t,int group_size,Graph* rGraph,list<strin
     // sink
     while (dijkstra2(s, t,*rGraph, parent)) {
         // Find minimum residual capacity of the edges along
-        // the path filled by BFS. Or we can say find the
+        // the path filled by dijkstra2. Or we can say find the
         // maximum flow through the path found.
         // max_time = max_time > rGraph->nodes[t].dist ? max_time : (int)rGraph->nodes[t].dist;
         int path_flow = INT_MAX;
@@ -579,9 +579,8 @@ void Graph::problema_2_5()
 list<FlowInfo> Graph::fordFulkerson2_5(int s, int t, int group_size, Graph* rGraph)
 {
     int u, v;
-    //residual graph
 
-    int parent[n]; // This array is filled by BFS and to
+    int parent[n]; // This array is filled to
     // store path
     list<FlowInfo> paths_used;
 
@@ -589,7 +588,7 @@ list<FlowInfo> Graph::fordFulkerson2_5(int s, int t, int group_size, Graph* rGra
     // sink
     while (dijkstra2(s, t,*rGraph, parent)) {
         // Find minimum residual capacity of the edges along
-        // the path filled by BFS. Or we can say find the
+        // the path filled by dijkstra2. Or we can say find the
         // maximum flow through the path found.
         int path_flow = INT_MAX;
         for (v = t; v != s; v = parent[v]) {
@@ -619,266 +618,3 @@ list<FlowInfo> Graph::fordFulkerson2_5(int s, int t, int group_size, Graph* rGra
     }
     return {};
 }
-
-// Returns the maximum flow from s to t in the given graph
-/*int Graph::fordFulkerson(int s, int t,)
-{
-    int u, v;
-    //residual graph
-    Graph rGraph = *this;
-
-    int parent[n]; // This array is filled by BFS and to
-    // store path
-
-    int max_flow = 0; // There is no flow initially
-
-    // Augment the flow while there is path from source to
-    // sink
-    while (bfs2(s, t,rGraph, parent)) {
-        // Find minimum residual capacity of the edges along
-        // the path filled by BFS. Or we can say find the
-        // maximum flow through the path found.
-        int path_flow = INT_MAX;
-        for (v = t; v != s; v = parent[v]) {
-            u = parent[v];
-            Edge* edge = getEdge(rGraph,u,v);
-            path_flow = min(path_flow, edge->capacity);
-        }
-
-        // update residual capacities of the edges and
-        // reverse edges along the path
-        for (v = t; v != s; v = parent[v]) {
-            u = parent[v];
-            Edge* edgeUV = getEdge(rGraph,u,v);
-            edgeUV->capacity -= path_flow;
-            Edge* edgeVU = getEdge(rGraph,v,u);
-            edgeVU->capacity += path_flow;
-        }
-
-        // Add path flow to overall flow
-        max_flow += path_flow;
-    }
-
-    // Return the overall flow
-    return max_flow;
-}*/
-/*
-
-void Graph::lessStopsPath()
-{
-    lessStops(src);
-    list<int> path;
-    if(!nodes[dest].visited) return;
-    path.push_back(dest);
-    int v = dest;
-    while(v != src)
-    {
-        v = nodes[v].pred;
-        path.push_front(v);
-    }
-
-    cout << "CODE  |  NAME  |  LINE USED" << endl;
-
-    for(int i : path)
-    {
-        cout << nodes[i].code << " " << nodes[i].name << " " << nodes[i].lineUsed << endl;
-    }
-}
-
-void Graph::lessDistancePath()
-{
-    lessDistance(src);
-    list<int> path;
-    if (nodes[dest].dist == INF) return;
-    cout << "distancia total: " << nodes[dest].dist << endl;
-    path.push_back(dest);
-    int v = dest;
-    while (v != src) {
-        v = nodes[v].pred;
-        path.push_front(v);
-    }
-
-    cout << "CODE  |  NAME  |  LINE USED  | DISTANCE" << endl;
-
-    for(int i : path)
-    {
-        cout << nodes[i].code << " " << nodes[i].name << " " << nodes[i].lineUsed << " " << nodes[i].dist<< endl;
-    }
-}
-
-void Graph::lessDistance(int source) {
-    MinHeap<int, double> queue(n, -1);
-    for (int v=0; v<n; v++) {
-        nodes[v].dist = INF;
-        queue.insert(v, INF); //priority queue
-        nodes[v].visited = false;
-    }
-    nodes[source].dist = 0;
-    queue.decreaseKey(source, 0);
-    nodes[source].pred = source;
-    while (queue.getSize() > 0) {
-        int smallest = queue.removeMin();
-        nodes[smallest].visited = true;
-        for (auto &edge : nodes[smallest].adj) {
-            if(((night && edge.isNight) || (!night && !edge.isNight) || (edge.line == "feet")) && !edge.removed) {
-                int v = edge.dest;
-                double w = edge.weight;
-                if (!nodes[v].visited && nodes[smallest].dist + w < nodes[v].dist && !nodes[v].removed) {
-                    nodes[v].dist = nodes[smallest].dist + w;
-                    queue.decreaseKey(v, nodes[v].dist);
-                    nodes[v].pred = smallest;
-                    nodes[v].lineUsed = edge.line;
-                }
-            }
-        }
-    }
-}
-
-void Graph::lessZonesPath()
-{
-    lessZones(src);
-    list<int> path;
-    if(!nodes[dest].visited) return;
-    path.push_back(dest);
-    cout << nodes[dest].dist - 1 << " zone(s) passed" << endl;
-    int v = dest;
-    while(v != src)
-    {
-        v = nodes[v].pred;
-        path.push_front(v);
-    }
-
-    cout << "CODE  |  NAME  | ZONE" << endl;
-
-    for(int i : path)
-    {
-        cout << nodes[i].code << " " << nodes[i].name << " " << nodes[i].zone << endl;
-    }
-}
-
-void Graph::lessZones(int s)
-{
-    MinHeap<int, double> q(n, -1);
-    for (int v=0; v<n; v++) {
-        nodes[v].dist = INF;
-        q.insert(v, nodes[v].dist); //priority queue
-        nodes[v].visited = false;
-    }
-    nodes[s].dist = 0;
-    q.decreaseKey(s, 0);
-    nodes[s].pred = s;
-    string lastZone;
-    while (q.getSize()>0) {
-        int smallest = q.removeMin();
-        nodes[smallest].visited = true;
-        if(nodes[smallest].zone != " ") lastZone = nodes[smallest].zone;
-        for (auto &edge : nodes[smallest].adj) {
-            if(((night && edge.isNight) || (!night && !edge.isNight) || (edge.line == "feet")) && !edge.removed) {
-                int v = edge.dest;
-                if (nodes[v].zone == lastZone)
-                    edge.weight = 0;
-
-                else
-                    edge.weight = 1;
-
-                double w = edge.weight;
-                if (!nodes[v].visited && nodes[smallest].dist + w < nodes[v].dist && !nodes[v].removed) {
-                    nodes[v].dist = nodes[smallest].dist + w;
-                    q.decreaseKey(v, nodes[v].dist);
-                    nodes[v].pred = smallest;
-                }
-            }
-        }
-    }
-}
-
-
-void Graph::lessLinesPath() {
-    lessLines(src);
-    list<int> path;
-    if (!nodes[dest].visited) return;
-    path.push_back(dest);
-    cout << nodes[dest].dist - 2 << " line(s) passed" << endl;
-    int v = dest;
-    while (v != src) {
-        v = nodes[v].pred;
-        path.push_front(v);
-    }
-
-    cout << "CODE  |  NAME  | LINE USED" << endl;
-
-    for (int i: path) {
-        cout << nodes[i].code << " " << nodes[i].name << " " << nodes[i].lineUsed << endl;
-    }
-}
-
-void Graph::lessLines(int source)
-{
-    MinHeap<int, double> queue(n, -1);
-    for (int v=0; v<n; v++) {
-        nodes[v].dist = INF;
-        queue.insert(v, nodes[v].dist); //priority queue
-        nodes[v].visited = false;
-    }
-    nodes[source].dist = 0;
-    queue.decreaseKey(source, 0);
-    nodes[source].pred = source;
-    int counter = 0;
-    while (queue.getSize() > 0) {
-        int smallest = queue.removeMin();
-        nodes[smallest].visited = true;
-        for (auto &edge : nodes[smallest].adj) {
-            if(((night && edge.isNight) || (!night && !edge.isNight) || (edge.line == "feet")) && !edge.removed) {
-                int v = edge.dest;
-                if (edge.line == "feet" && counter != 0 && nodes[v].name != "destination")
-                    edge.weight = INF;
-                else if(edge.line != nodes[smallest].lineUsed)
-                    edge.weight = 1;
-                else edge.weight = 0;
-
-                double w = edge.weight;
-                if (!nodes[v].visited && nodes[smallest].dist + w < nodes[v].dist && !nodes[v].removed) {
-                    nodes[v].dist = nodes[smallest].dist + w;
-                    queue.decreaseKey(v, nodes[v].dist);
-                    nodes[v].pred = smallest;
-                    nodes[v].lineUsed = edge.line;
-                }
-            }
-        }
-        counter = 1;
-    }
-}
-
-void Graph::changeTime() {
-    if(night) {
-        night = false;
-        cout << "time changed to day" << endl;
-        return;
-    }
-    night = true;
-    cout << "time changed to night" << endl;
-}
-
-void Graph::removeStop(string &name)
-{
-    nodes[codeID[name]].removed = true;
-    nodes[codeID[name]].adj.clear();
-    nodes[codeID[name]].longitude = 0;
-    nodes[codeID[name]].latitude = 0;
-    nodes[codeID[name]].zone = "";
-    nodes[codeID[name]].name = "REMOVED";
-}
-
-void Graph::removeLine(unordered_set <string> stringSet)
-{
-    for(auto& node : nodes)
-    {
-        for(auto& edge : node.adj)
-        {
-            if(stringSet.find(edge.line) != stringSet.end()) {
-                edge.removed = true;
-            }
-        }
-    }
-}
- */
